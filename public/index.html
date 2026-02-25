@@ -384,7 +384,7 @@ function MenuScreen({pizzas,onSelect,visible,cartCount,onGoCheckout,getImgSrc}) 
         </div>
       </div>
 
-      <div style={{...S.footer, marginBottom: cartCount>0 ? 60 : 0}}><FlameLogo size={16} color={BRAND.black}/><p style={{fontSize:12,color:BRAND.black,margin:0,fontWeight:600}}>Apenas entregas • Taxa fixa R$ 10,00</p></div>
+      <div style={{...S.footer, marginBottom: cartCount>0 ? 60 : 0}}><FlameLogo size={16} color={BRAND.black}/></div>
     </div>
   );
 }
@@ -659,13 +659,22 @@ function AdminScreen({pizzas,onSave,getImgSrc}) {
                 <input style={S.input} type="number" step="0.1" value={p.price} onChange={e=>updateField(id,"price",parseFloat(e.target.value)||0)}/>
               </div>
               <div>
-                <label style={S.label}>URL da imagem (deixe como está para manter a original)</label>
-                <input style={S.input} value={p.img.startsWith("IMG_")?"(imagem original)":p.img} placeholder="https://exemplo.com/foto.jpg" onChange={e=>{
-                  const v = e.target.value;
-                  if(v==="" || v==="(imagem original)") updateField(id,"img",DEFAULT_PIZZAS[id].img);
-                  else updateField(id,"img",v);
-                }}/>
-                <p style={{fontSize:10,color:"#999",marginTop:4}}>Cole a URL de uma imagem da internet para trocar a foto</p>
+                <label style={S.label}>Foto do produto</label>
+                <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                  <label style={{background:BRAND.black,color:BRAND.gold,padding:"10px 16px",borderRadius:10,fontSize:13,fontWeight:700,cursor:"pointer",display:"inline-block"}}>
+                    📷 Escolher foto
+                    <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{
+                      const file = e.target.files[0];
+                      if(!file) return;
+                      if(file.size > 5*1024*1024){alert("Imagem muito grande. Máximo 5MB.");return;}
+                      const reader = new FileReader();
+                      reader.onload = (ev) => updateField(id,"img",ev.target.result);
+                      reader.readAsDataURL(file);
+                    }}/>
+                  </label>
+                  {!p.img.startsWith("IMG_") && p.img.startsWith("data:") && <button onClick={()=>updateField(id,"img",DEFAULT_PIZZAS[id].img)} style={{background:"none",border:"1px solid #ccc",color:"#888",padding:"8px 12px",borderRadius:10,fontSize:11,fontWeight:600,cursor:"pointer"}}>Restaurar original</button>}
+                </div>
+                {!p.img.startsWith("IMG_") && p.img.startsWith("data:") && <p style={{fontSize:10,color:BRAND.green,marginTop:6,fontWeight:600}}>✅ Nova foto carregada</p>}
               </div>
             </div>
           </div>
