@@ -1,0 +1,13 @@
+{
+  "name": "fumego-pizza",
+  "version": "1.0.0",
+  "description": "Fumêgo Pizza Clássica - Site de pedidos com integração Cardápio Web",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Static site - no build needed'",
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
