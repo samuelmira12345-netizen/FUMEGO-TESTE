@@ -2,10 +2,20 @@
  * API Route: /api/send-order
  * 
  * Recebe o pedido do frontend Fumêgo e envia para o Cardápio Web.
- * A comunicação com o Cardápio Web usa a API aberta (módulo Pedidos).
+ * Usa o campo "id" do item para garantir identificação correta,
+ * mesmo que o admin tenha alterado os nomes no frontend.
  * 
  * Documentação: https://cardapioweb.stoplight.io/docs/api
  */
+
+// Mapeamento original dos produtos (IDs fixos)
+// Esses nomes DEVEM corresponder aos cadastrados no Cardápio Web
+const PRODUCT_MAP = {
+  'marguerita': { originalName: 'Marguerita', category: 'pizza' },
+  'calabresa':  { originalName: 'Calabresa', category: 'pizza' },
+  'combo':      { originalName: 'Combo Fumêgo', category: 'combo' },
+  'especial':   { originalName: 'Especial do Mês', category: 'pizza' },
+};
 
 export default async function handler(req, res) {
   // Apenas POST
@@ -53,14 +63,12 @@ export default async function handler(req, res) {
 
     // ─── Monta o pedido no formato do Cardápio Web ───
     const cardapioWebOrder = {
-      // Dados do cliente
       customer: {
         name: orderData.customer.name,
         phone: orderData.customer.phone,
         document: orderData.customer.cpf || '',
       },
 
-      // Endereço de entrega
       deliveryAddress: {
         street: orderData.address.street,
         number: orderData.address.number,
@@ -71,39 +79,37 @@ export default async function handler(req, res) {
         reference: orderData.address.reference || '',
       },
 
-      // Itens do pedido
-      items: orderData.items.map(item => ({
-        name: item.name,
-        quantity: item.quantity || 1,
-        price: item.price,
-        observation: item.observations || '',
-        // Sub-itens (bebidas/complementos)
-        subItems: (item.drinks || []).map(drink => ({
-          name: drink.name,
-          quantity: drink.qty,
-          price: drink.price,
-        })),
-      })),
+      // Itens do pedido — usa o ID para resolver o nome original
+      // garantindo que o Cardápio Web reconheça o produto
+      items: orderData.items.map(item => {
+        const mapped = PRODUCT_MAP[item.id];
+        // Se o admin mudou o nome no site, aqui enviamos o nome original
+        // que o Cardápio Web conhece. Se não encontrar no mapa, usa o nome como veio.
+        const apiName = mapped ? mapped.originalName : item.name;
 
-      // Forma de pagamento
+        return {
+          name: apiName,
+          displayName: item.name, // nome exibido no site (pode ter sido editado pelo admin)
+          quantity: item.quantity || 1,
+          price: item.price,
+          observation: item.observations || '',
+          subItems: (item.drinks || []).map(drink => ({
+            name: drink.name,
+            quantity: drink.qty,
+            price: drink.price,
+          })),
+        };
+      }),
+
       payment: {
         method: mapPaymentMethod(orderData.paymentMethod),
         change: orderData.change || 0,
       },
 
-      // Taxas
       deliveryFee: orderData.deliveryFee || 10.0,
-
-      // Desconto (cupom)
       discount: orderData.discount || 0,
-
-      // Observações gerais
       observations: orderData.observations || '',
-
-      // Origem do pedido
       origin: 'site_fumego',
-
-      // Timestamp
       createdAt: new Date().toISOString(),
     };
 
@@ -125,7 +131,6 @@ export default async function handler(req, res) {
     if (!response.ok) {
       console.error('❌ Erro da API Cardápio Web:', response.status, responseData);
 
-      // Se a API retornar erro, ainda salva o pedido como fallback
       return res.status(response.status).json({
         error: 'Erro ao enviar pedido para o sistema',
         details: responseData,
