@@ -288,11 +288,11 @@ function MenuScreen({onSelect,visible,cartCount,onGoCheckout}) {
         <div style={{...S.pizzaCircle,opacity:visible?1:0,transform:visible?"scale(1)":"scale(0.9)",transition:"all 0.7s cubic-bezier(0.16,1,0.3,1)"}}>
           <img src={IMG_SPLIT} alt="Pizza" style={S.pizzaCircleImg} />
           <div style={{...S.halfOL,background:hoverL?"rgba(0,0,0,0.55)":"rgba(0,0,0,0.35)"}} onClick={()=>onSelect("calabresa")} onMouseEnter={()=>setHL(true)} onMouseLeave={()=>setHL(false)} onTouchStart={()=>setHL(true)} onTouchEnd={()=>setHL(false)}>
-            <div style={S.halfContent}><span style={S.halfNum}>01</span><h2 style={S.halfName}>Calabresa</h2><p style={S.halfPrice}>{formatPrice(45)}</p><span style={S.halfArrow}>→</span></div>
+            <div style={S.halfContent}><span style={S.halfNum}></span><h2 style={S.halfName}>Calabresa</h2><p style={S.halfPrice}>{formatPrice(45)}</p><span style={S.halfArrow}>→</span></div>
           </div>
           <div style={S.centerLine}/>
           <div style={{...S.halfOR,background:hoverR?"rgba(0,0,0,0.55)":"rgba(0,0,0,0.35)"}} onClick={()=>onSelect("marguerita")} onMouseEnter={()=>setHR(true)} onMouseLeave={()=>setHR(false)} onTouchStart={()=>setHR(true)} onTouchEnd={()=>setHR(false)}>
-            <div style={S.halfContent}><span style={S.halfNum}>02</span><h2 style={S.halfName}>Marguerita</h2><p style={S.halfPrice}>{formatPrice(45)}</p><span style={S.halfArrow}>→</span></div>
+            <div style={S.halfContent}><span style={S.halfNum}></span><h2 style={S.halfName}>Marguerita</h2><p style={S.halfPrice}>{formatPrice(45)}</p><span style={S.halfArrow}>→</span></div>
           </div>
         </div>
         <p style={S.heroSub}>PIZZA CLÁSSICA</p>
